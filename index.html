@@ -992,7 +992,7 @@ function initSeg(){
   const pick=(attr,val,apply,key)=>{document.querySelectorAll('[data-'+attr+']').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset[attr]===val)));apply(val);try{localStorage.setItem(key,val)}catch(e){}};
   const setView=v=>document.body.classList.toggle('view-grid',v==='grid');
   const setMode=m=>{document.documentElement.dataset.theme=m};
-  let v='list',m=document.documentElement.dataset.theme||'light';try{v=localStorage.getItem('xl-view')||'list'}catch(e){}
+  let v='grid',m=document.documentElement.dataset.theme||'light';try{v=localStorage.getItem('xl-view')||'grid'}catch(e){}
   document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>pick('view',b.dataset.view,setView,'xl-view')));
   document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>pick('mode',b.dataset.mode,setMode,'xl-theme')));
   pick('view',v,setView,'xl-view');pick('mode',m,setMode,'xl-theme');
