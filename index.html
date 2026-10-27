@@ -91,7 +91,16 @@ button{font:inherit}
 @media(min-width:901px){
   body.nav-hidden .app{grid-template-columns:minmax(0,1fr)}
   body.nav-hidden .navpane{display:none}
-  body.nav-hidden .navtoggle{display:inline-flex;align-items:center;gap:6px}
+  .navhide{display:none}
+  /* 탐색 창 오른쪽 가장자리에 붙은 세로 라벨: 숨기기 / 목차 */
+  .navtab{position:fixed;z-index:31;left:calc(var(--nav-w) - 1px);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;width:34px;padding:12px 0;appearance:none;border:1px solid var(--line-strong);border-left:0;border-radius:0 8px 8px 0;background:var(--bg2);color:var(--ink);font-size:15px;font-weight:700;cursor:pointer}
+  .navtab:hover{background:var(--surface);color:var(--green);border-color:var(--green)}
+  .navtab span{writing-mode:vertical-rl;letter-spacing:.1em}
+  .navtab svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+  body.nav-hidden .navtab{left:0;background:var(--green);border-color:var(--green);color:var(--on-green)}
+  body.nav-hidden .navtab svg{transform:rotate(180deg)}
+}
+@media(max-width:900px){.navtab{display:none}
 }
 .navgroup{margin-bottom:18px}
 .navgroup:last-child{margin-bottom:0}
@@ -314,7 +323,7 @@ ol.steps li::marker{color:var(--green);font-weight:700;font-family:var(--font-mo
 
 <div class="app">
   <nav class="navpane" id="navpane" aria-label="실습 가이드 목차">
-    <div class="navtop"><h2>탐색 창</h2><button class="navhide" id="navhide" type="button" aria-controls="navpane"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>숨기기</button></div>
+    <div class="navtop"><h2>탐색 창</h2><button class="navhide" id="navhide" type="button" aria-controls="navpane"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>닫기</button></div>
     <div id="navlist"></div>
     <button class="navmore" id="navmore" type="button" aria-label="아래 메뉴 더 보기" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5"/></svg>아래에 더 있어요</button>
   </nav>
@@ -1012,8 +1021,11 @@ function initSeg(){
   const updMore=()=>{if(wide()){const top=Math.max(np.getBoundingClientRect().top,0);np.style.maxHeight=Math.max(160,sbar.getBoundingClientRect().top-top)+'px'}else np.style.maxHeight='';more.hidden=np.scrollTop+np.clientHeight>=np.scrollHeight-4};
   np.addEventListener('scroll',updMore);addEventListener('resize',updMore);addEventListener('scroll',updMore,{passive:true});
   more.addEventListener('click',()=>np.scrollBy({top:np.clientHeight*0.7,behavior:'smooth'}));
-  const setHidden=h=>{document.body.classList.toggle('nav-hidden',h);tg.setAttribute('aria-expanded',String(!h));try{localStorage.setItem('xl-nav-hidden',h?'1':'')}catch(e){}requestAnimationFrame(updMore)};
-  try{if(localStorage.getItem('xl-nav-hidden'))setHidden(true)}catch(e){}
+  const tab=el('button','navtab');tab.type='button';tab.setAttribute('aria-controls','navpane');
+  tab.innerHTML='<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg><span></span>';document.body.appendChild(tab);
+  const setHidden=h=>{document.body.classList.toggle('nav-hidden',h);tg.setAttribute('aria-expanded',String(!h));tab.setAttribute('aria-expanded',String(!h));tab.lastChild.textContent=h?'목차 열기':'숨기기';tab.setAttribute('aria-label',h?'탐색 창 열기':'탐색 창 숨기기');try{localStorage.setItem('xl-nav-hidden',h?'1':'')}catch(e){}requestAnimationFrame(updMore)};
+  tab.addEventListener('click',()=>setHidden(!document.body.classList.contains('nav-hidden')));
+  let h0=false;try{h0=!!localStorage.getItem('xl-nav-hidden')}catch(e){}setHidden(h0);
   document.getElementById('navhide').addEventListener('click',()=>{if(wide())setHidden(true);else closeNav()});
   tg.addEventListener('click',()=>{if(wide()){setHidden(false);return}const o=np.classList.toggle('open');tg.setAttribute('aria-expanded',o);requestAnimationFrame(updMore)});
   document.addEventListener('keydown',e=>{if(e.key==='Escape')closeNav()});
