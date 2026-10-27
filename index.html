@@ -862,9 +862,9 @@ function buildBook(root,d){
     const rs=BREST.filter(r=>dayOfSec(r[0])===dd).map(r=>[r[0],r[1]]);
     if(rs.length)gs.push({per:null,t:'추가 과제 (빨리 끝난 분을 위한 예제)',items:rs,extra:true});
     gs.forEach(g=>{g.items=g.items.filter(x=>nm[x[0]+':'+x[1]])});
-    /* 한 교시 안에서는 Section별로 모아 교재 목차 번호 순으로 정렬한다(AI 실무 프로젝트는 Section 끝). 1일차 6교시는 지정한 순서를 유지 */
+    /* 한 교시 안에서는 Section별로 모아 교재 목차 번호 순으로 정렬한다(AI 실무 프로젝트는 Section 끝) */
     const tk=x=>{const v=BTOC.map[x[0]][idxOf[x[0]+':'+x[1]]-1];return v==null?98:/^AI/.test(v)?99:+v};
-    gs.forEach(g=>{if(dd===1&&g.per==='6')return;const rk={};g.items.forEach(x=>{if(!(x[0] in rk))rk[x[0]]=Object.keys(rk).length});g.items.sort((p,q)=>rk[p[0]]-rk[q[0]]||tk(p)-tk(q))});
+    gs.forEach(g=>{const rk={};g.items.forEach(x=>{if(!(x[0] in rk))rk[x[0]]=Object.keys(rk).length});g.items.sort((p,q)=>rk[p[0]]-rk[q[0]]||tk(p)-tk(q))});
     return gs};
   const groups=mk(d);
   /* 예제 번호는 화면에 나오는 순서(1일차 → 3일차)대로 Section별로 차례로 매긴다 */
