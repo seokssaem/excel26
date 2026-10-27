@@ -851,10 +851,15 @@ function buildBook(root,d){
   const secT={};BOOK.forEach(s=>{secT[s.n]=s});
   /* 코스 밖 추가 과제는 같은 Section 예제가 가장 많은 날에 붙인다 */
   const dayOfSec=n=>{const c={1:0,2:0,3:0};BPLAN.forEach(p=>p[3].forEach(f=>{if(secOf[f]===n)c[p[0]]++}));return [1,2,3].reduce((b,x)=>c[x]>c[b]?x:b,1)};
-  const groups=BPLAN.filter(p=>p[0]===d).map(p=>({per:p[1],t:p[2],items:p[3].map(f=>[secOf[f],f])}));
-  const rest=BREST.filter(r=>dayOfSec(r[0])===d).map(r=>[r[0],r[1]]);
-  if(rest.length)groups.push({per:null,t:'추가 과제 (빨리 끝난 분을 위한 예제)',items:rest,extra:true});
-  groups.forEach(g=>{g.items=g.items.filter(x=>nm[x[0]+':'+x[1]])});
+  const mk=dd=>{
+    const gs=BPLAN.filter(p=>p[0]===dd).map(p=>({per:p[1],t:p[2],items:p[3].map(f=>[secOf[f],f])}));
+    const rs=BREST.filter(r=>dayOfSec(r[0])===dd).map(r=>[r[0],r[1]]);
+    if(rs.length)gs.push({per:null,t:'추가 과제 (빨리 끝난 분을 위한 예제)',items:rs,extra:true});
+    gs.forEach(g=>{g.items=g.items.filter(x=>nm[x[0]+':'+x[1]])});
+    return gs};
+  const groups=mk(d);
+  /* 예제 번호는 화면에 나오는 순서(1일차 → 3일차)대로 Section별로 차례로 매긴다 */
+  if(!window.__bseq){const c={};window.__bseq={};[1,2,3].forEach(dd=>mk(dd).forEach(g=>g.items.forEach(x=>{c[x[0]]=(c[x[0]]||0)+1;window.__bseq[x[0]+':'+x[1]]=c[x[0]]})))}
   const total=groups.reduce((a,g)=>a+g.items.length,0);
   add(root,el('h2','sec-title','교재 따라하기 · Day '+d));
   add(root,el('p','sec-sub','교재 예제를 이 코스의 진행 순서대로 모았습니다. 책대로 직접 해 보고, [AI에게 요청]의 프롬프트를 복사해 같은 작업을 AI에게 물어 비교한 뒤, 완성 파일과 내 결과를 대조합니다.'));
@@ -884,9 +889,9 @@ function buildBook(root,d){
     const gRows=[];
     g.items.forEach(x=>{
       const k=key(x[0],x[1]);const name=nm[x[0]+':'+x[1]];const bf=BFILES[x[0]+':'+x[1]]||{};
-      const det=el('details','ex');det.dataset.box='S'+String(x[0]).padStart(2,'0')+'-'+String(idxOf[x[0]+':'+x[1]]).padStart(2,'0');
+      const det=el('details','ex');det.dataset.box='S'+String(x[0]).padStart(2,'0')+'-'+String(window.__bseq[x[0]+':'+x[1]]).padStart(2,'0');
       const sm=el('summary');
-      add(sm,el('span','eid','S'+String(x[0]).padStart(2,'0')+'-'+String(idxOf[x[0]+':'+x[1]]).padStart(2,'0')),el('span','etitle',name),el('span','toc',tocLine(x[0],idxOf[x[0]+':'+x[1]])),el('span','chip file',x[1]));
+      add(sm,el('span','eid','S'+String(x[0]).padStart(2,'0')+'-'+String(window.__bseq[x[0]+':'+x[1]]).padStart(2,'0')),el('span','etitle',name),el('span','toc',tocLine(x[0],idxOf[x[0]+':'+x[1]])),el('span','chip file',x[1]));
       if(BAI[x[1]])sm.appendChild(el('span','chip ai2','교재 AI 프로젝트 '+BAI[x[1]]));
       det.appendChild(sm);
       const body=el('div','ebody');
