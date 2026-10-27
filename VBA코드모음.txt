@@ -1,0 +1,67 @@
+' ============================================================
+'  공무원 AI 엑셀 과정 · VBA 코드 모음 (복사해서 모듈에 붙여넣기)
+'  사용법: Alt+F11 → [삽입] → [모듈] → 아래 코드 붙여넣기 → 저장 시 .xlsm 으로 저장
+'  주의  : 수업 전 강사 PC에서 한 번 실행해 보고, 수강생에게는 복사본 파일로 실습시키세요.
+'          기관 보안 정책으로 매크로가 차단된 PC에서는 실행되지 않을 수 있습니다.
+' ============================================================
+
+
+' ------------------------------------------------------------
+' [1] 민원대장의 '기한초과' 행을 연한 빨강으로 칠하기
+'     대상 파일: D1_Complaints_done.xlsx  (시트 '민원대장', P열 = 기한초과)
+' ------------------------------------------------------------
+Sub 기한초과_행강조()
+    Dim ws As Worksheet
+    Dim 마지막행 As Long, i As Long, 건수 As Long
+
+    Set ws = ThisWorkbook.Worksheets("민원대장")
+    마지막행 = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+
+    Application.ScreenUpdating = False
+    ws.Range("A2:P" & 마지막행).Interior.Pattern = xlNone      ' 기존 색 지우기
+
+    For i = 2 To 마지막행
+        If ws.Cells(i, 16).Value = "기한초과" Then               ' 16 = P열
+            ws.Range(ws.Cells(i, 1), ws.Cells(i, 16)).Interior.Color = RGB(254, 226, 226)
+            건수 = 건수 + 1
+        End If
+    Next i
+    Application.ScreenUpdating = True
+
+    MsgBox "기한초과 " & 건수 & "건을 표시했습니다.", vbInformation
+End Sub
+
+
+' ------------------------------------------------------------
+' [2] '요약' 시트를 PDF로 저장하기 (파일명에 오늘 날짜 자동 반영)
+'     대상 파일: D2_Pivot_done.xlsx  (시트 '요약')
+'     저장 위치: 이 엑셀 파일이 있는 폴더
+' ------------------------------------------------------------
+Sub 요약시트_PDF저장()
+    Dim ws As Worksheet
+    Dim 경로 As String
+
+    If ThisWorkbook.Path = "" Then
+        MsgBox "먼저 파일을 저장한 뒤 실행하세요.", vbExclamation
+        Exit Sub
+    End If
+
+    Set ws = ThisWorkbook.Worksheets("요약")
+    경로 = ThisWorkbook.Path & "\민원요약_" & Format(Date, "yyyymmdd") & ".pdf"
+
+    ws.ExportAsFixedFormat Type:=xlTypePDF, Filename:=경로, _
+        Quality:=xlQualityStandard, OpenAfterPublish:=False
+
+    MsgBox "PDF 저장 완료" & vbCrLf & 경로, vbInformation
+End Sub
+
+
+' ------------------------------------------------------------
+' [3] 도전: 요약 시트 PDF 저장 전에 '정말 저장할지' 묻기
+'     AI에게 [2]번 코드를 주고 "저장 전에 확인 메시지를 넣어줘"라고 요청해 보세요.
+'     (정답 예시는 AI가 만든 코드와 비교해 보는 용도입니다.)
+' ------------------------------------------------------------
+Sub 요약시트_PDF저장_확인후()
+    If MsgBox("요약 시트를 PDF로 저장할까요?", vbYesNo + vbQuestion) = vbNo Then Exit Sub
+    Call 요약시트_PDF저장
+End Sub
