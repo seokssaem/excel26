@@ -93,9 +93,8 @@ button{font:inherit}
   body.nav-hidden .navpane{display:none}
   .navhide{display:none}
   /* 탐색 창 오른쪽 가장자리에 붙은 세로 라벨: 숨기기 / 목차 */
-  .navtab{position:fixed;z-index:31;left:calc(var(--nav-w) - 1px);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;width:34px;padding:12px 0;appearance:none;border:1px solid var(--line-strong);border-left:0;border-radius:0 8px 8px 0;background:var(--bg2);color:var(--ink);font-size:15px;font-weight:700;cursor:pointer}
+  .navtab{position:fixed;z-index:31;left:calc(var(--nav-w) - 1px);top:calc(env(safe-area-inset-top,0px) + 140px);display:flex;align-items:center;justify-content:center;width:26px;height:52px;padding:0;appearance:none;border:1px solid var(--line-strong);border-left:0;border-radius:0 8px 8px 0;background:var(--bg2);color:var(--ink);font-size:15px;font-weight:700;cursor:pointer}
   .navtab:hover{background:var(--surface);color:var(--green);border-color:var(--green)}
-  .navtab span{writing-mode:vertical-rl;letter-spacing:.1em}
   .navtab svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
   body.nav-hidden .navtab{left:0;background:var(--green);border-color:var(--green);color:var(--on-green)}
   body.nav-hidden .navtab svg{transform:rotate(180deg)}
@@ -1018,12 +1017,14 @@ function initSeg(){
   const wide=()=>matchMedia('(min-width:901px)').matches;
   /* 탐색 창 아래에 메뉴가 더 남았으면 [아래에 더 있어요]를 보여 준다 */
   const sbar=document.querySelector('.statusbar');
-  const updMore=()=>{if(wide()){const top=Math.max(np.getBoundingClientRect().top,0);np.style.maxHeight=Math.max(160,sbar.getBoundingClientRect().top-top)+'px'}else np.style.maxHeight='';more.hidden=np.scrollTop+np.clientHeight>=np.scrollHeight-4};
+  /* 숨기기 탭은 탐색 창 오른쪽 세로선에 딱 붙인다 */
+  const updMore=()=>{const t=document.querySelector('.navtab');if(t)t.style.left=wide()&&!document.body.classList.contains('nav-hidden')?(np.getBoundingClientRect().right-1)+'px':'';
+    if(wide()){const top=Math.max(np.getBoundingClientRect().top,0);np.style.maxHeight=Math.max(160,sbar.getBoundingClientRect().top-top)+'px'}else np.style.maxHeight='';more.hidden=np.scrollTop+np.clientHeight>=np.scrollHeight-4};
   np.addEventListener('scroll',updMore);addEventListener('resize',updMore);addEventListener('scroll',updMore,{passive:true});
   more.addEventListener('click',()=>np.scrollBy({top:np.clientHeight*0.7,behavior:'smooth'}));
   const tab=el('button','navtab');tab.type='button';tab.setAttribute('aria-controls','navpane');
-  tab.innerHTML='<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg><span></span>';document.body.appendChild(tab);
-  const setHidden=h=>{document.body.classList.toggle('nav-hidden',h);tg.setAttribute('aria-expanded',String(!h));tab.setAttribute('aria-expanded',String(!h));tab.lastChild.textContent=h?'목차 열기':'숨기기';tab.setAttribute('aria-label',h?'탐색 창 열기':'탐색 창 숨기기');try{localStorage.setItem('xl-nav-hidden',h?'1':'')}catch(e){}requestAnimationFrame(updMore)};
+  tab.innerHTML='<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>';document.body.appendChild(tab);
+  const setHidden=h=>{document.body.classList.toggle('nav-hidden',h);tg.setAttribute('aria-expanded',String(!h));tab.setAttribute('aria-expanded',String(!h));tab.setAttribute('aria-label',h?'탐색 창 열기':'탐색 창 숨기기');tab.title=h?'탐색 창 열기':'탐색 창 숨기기';try{localStorage.setItem('xl-nav-hidden',h?'1':'')}catch(e){}updMore()};
   tab.addEventListener('click',()=>setHidden(!document.body.classList.contains('nav-hidden')));
   let h0=false;try{h0=!!localStorage.getItem('xl-nav-hidden')}catch(e){}setHidden(h0);
   document.getElementById('navhide').addEventListener('click',()=>{if(wide())setHidden(true);else closeNav()});
