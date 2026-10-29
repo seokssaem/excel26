@@ -901,7 +901,7 @@ function buildBook(root,d){
   const list=el('div','stack');root.appendChild(list);
   groups.forEach(g=>{
     const wrap=el('div','stack');if(g.per)wrap.id='bk-d'+d+'-p'+g.per;
-    if(d===3&&g.per==='1'){const nb=el('div','note ai');nb.style.cssText='display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px';nb.appendChild(el('b','','차트 교재(PDF)는 무료로 제공됩니다. 길벗 도서 페이지의 자료실에서 받으세요.'));const lk=el('a','btn','차트 교재 PDF 받으러 가기 →');lk.href='https://www.gilbut.co.kr/book/view?bookcode=BN004692#bookData';lk.target='_blank';lk.rel='noopener noreferrer';lk.style.textDecoration='none';nb.appendChild(lk);wrap.appendChild(nb)}
+    if(d===3&&g.per==='1'){const nb=el('div','note ai');nb.style.cssText='display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px';nb.appendChild(el('b','','차트 교재(PDF)는 길벗 출판사가 무료로 제공합니다.'));const fm=document.createElement('form');fm.method='post';fm.action='https://www.gilbut.co.kr/book/down_file';fm.target='_blank';fm.style.display='inline';[['down_idx','269984'],['down_bookcode','BN004692'],['down_type','pds']].forEach(([n,v])=>{const i=document.createElement('input');i.type='hidden';i.name=n;i.value=v;fm.appendChild(i)});const bt=el('button','btn','차트 교재 PDF 내려받기');bt.type='submit';fm.appendChild(bt);nb.appendChild(fm);const lk=el('a','btn','안 되면: 길벗 자료실 열기 → (학습자료 탭)');lk.href='https://www.gilbut.co.kr/book/view?bookcode=BN004692#bookData';lk.target='_blank';lk.rel='noopener noreferrer';lk.style.textDecoration='none';nb.appendChild(lk);wrap.appendChild(nb)}
     const hb=el('div','daybar');hb.style.margin='14px 0 4px';
     if(g.per)add(hb,el('span','chip per',periodLabel(g.per)),el('h3','',g.t),el('span','',TIMES[g.per]));
     else add(hb,el('h3','',g.t));
